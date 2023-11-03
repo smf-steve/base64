@@ -1,0 +1,177 @@
+# base64
+a MIPS implementation of base64
+
+# Method: 
+#    Load three bytes from the input location (totaling 24 bits;  3 * 8 == 24)
+#    Merge bytes into one register      
+#    Chop the bytes into 4 6-bit chunks
+#    Map each of the 4 6-bit chunks into an 8-bit ASCII value
+#    Store each of these 8-bit ASCII values to the output location
+#
+
+1020 = 12 * 85;
+
+
+
+## Major Entry Points:
+read 24 bytes -- 3 words
+  - expand to 4 regs
+  - extract 4\*4 6-bit sequence
+  - contruct 16 bytes 
+  - write out 4 words
+
+1. base64(fd_in, fd_out)
+   -- a0: in_buff
+   -- a1: out_buff
+
+   1020  immediate
+   3     
+   12    2^8 + 2^4
+   c
+   loop_count
+   retval
+
+
+   do {
+     retval = read(0, buff, 1020);
+
+     // Determine the number out outut buts
+     out = retval / 3 * 4;
+
+     // Proceses 12 bytes at a time
+     if (retval >= 12) {
+       c=0;
+       for(; c < retval ;) {
+          load12  load_3w_to_4r
+            lw $t0
+            lw $t1
+            lw $t3
+
+            $t0 = $t0 >>> 8
+            $t1 = ($t0 << 16) | ($t1 >>> 16)
+            $t2 = ($t1 << 8 ) | ($t3 >>> 24 )
+            $t3 = $t3
+
+
+            // Process 1 word out of 4
+            chop3  $t0  -> $t4, t5, t6
+            map3   t4, t5, t6
+               // merge
+               // sw
+
+ 			// Process 2 worke out of 4
+            chop3 $t1 -> $t7 t8 t9
+            map3  t7 t8 t9
+         
+
+                //--
+               merge4 t0, t4, t5, t6, t7
+               sw t0 0(a1)
+
+            // Process 3 word out of 4
+          	chop3 $t2 ->  t4, t5, t6
+          	map3 t4 t5 t6
+             	//--
+             	merge3 t1, t8, t9, t4, t5
+            	sw t1 4(a1)
+
+          	// Process 4 word out of 4
+            chop3 $t3 ->  t7, t8, t9
+            map3 t7 t8 t9
+                 //-
+                merge4 t2 t6 t7 t8 t9
+
+            sw t2 8(a1)
+          
+            merge3 t3 t6 t7 t8 t9
+            sw t3 12()
+
+          c+=4;
+        }
+       retval    = retval - c;
+
+     }
+
+     // Process 3 bytes at a time
+     if (c < retval) {
+        for(; c < retval ;) {
+          load3
+            lb $t0   0(in_buff)
+
+            lb $t1   1(in_buff)
+            $t0 = $t0 << 8;
+            $t0 = $t0 | $t1
+
+            lb $t2    2(in_buff)
+            $t0 = $t0 << 8;
+            $t0 = $t0 | $t2
+          
+          chop3
+            $t2 = $t0 & 0x3F 
+            $t1 = $t0 >> 6  & 0x3F
+            $t0 = $t0 >> 12
+
+          map $t0
+          sb $t0  0(out_buff)
+
+          map $t1
+          sb $t1  1(out_buff)
+
+          map $t2
+          sb $t2  2(out_buff)
+
+          c++;
+       }
+     }
+
+     if (retval >= 0) {
+     // need to calculate the number of bytes to print
+     // ratio is 6 ->  hance:  retval / 3 * 4 + 
+     padding retval % 3;
+     write(1, buff, retval)
+   } while (retval > 0);
+
+
+1. load12:
+   - loads 12 bytes into 3 registers
+     - 3: lw operations into 
+     - unpacks 3 register into 4 registers
+
+1. load3
+   - loads 3 bytes into 1 register
+     - 3 lb operations 
+     - merge 3 registers into 1 register
+
+
+ 1. chop: chops the register into 4 6-bit sequence
+      split:  mask
+      slide:  shift
+
+ 1. map:    
+
+ 1. merge: place 4 ASCII values into a single register
+     - shift:  into correct position
+     - meld:   and
+
+
+
+ 1. padding
+
+
+====
+Alternative algorithm...
+   read in word..
+   write algorithm to work with top 24bit.
+   shift last byte to position three, llh
+   write algorithm to work thh lower half
+     -- shift 8 instead
+
+   this algoirth wold flip back and forth between
+      lw, lh, lw, lh, lw
+
+Alternative algorithm
+  - double the one above  read_24 at at time
+    - 6 lw --> 8 registers
+    - 8 output registers
+
+
