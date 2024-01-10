@@ -57,6 +57,7 @@ case 63        : index = '/';         \
   break;                              \
 }
 
+
 #define ascii2bin(index)               \
 switch ( index ) {                     \
 case 'A' ... 'Z' : index -=  0 + 'A' ; \
@@ -206,7 +207,6 @@ int encode (byte * in_buff, byte * out_buff) {
 }
 
 
-
 int decode (byte * in_buff, byte * out_buff) {
   int b0;  // The three output bytes
   int b1;
@@ -299,5 +299,3 @@ int main(int argc, char * argv[]) {
   printf("\n");
   return 0;
 }
-
-
