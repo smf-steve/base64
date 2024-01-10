@@ -9,9 +9,36 @@ test:
 	./base64 -d < base64.c.encoded >base64.c.decoded
 	diff -q base64.c.decoded base64.c	
 
+test_encode:
+	./base64 <<< "hello"
+	base64   <<< "hello"
+	./base64 <<< "hello "
+	base64   <<< "hello "
+	./base64 <<< "hello t"
+	base64   <<< "hello t"
+	./base64 <<< "hello th"
+	base64   <<< "hello th"
+	./base64 <<< "hello the"
+	base64   <<< "hello the"
+
+
+test_decode:
+	./base64 -d <<< "aGVsbG8K"
+	base64   -d <<< "aGVsbG8K"
+	./base64 -d <<< "aGVsbG8gCg=="
+	base64   -d <<< "aGVsbG8gCg=="
+	./base64 -d <<< "aGVsbG8gdAo="
+	base64   -d <<< "aGVsbG8gdAo="
+	./base64 -d <<< "aGVsbG8gdGgK"
+	base64   -d <<< "aGVsbG8gdGgK"
+	./base64 -d <<< "aGVsbG8gdGhlCg=="
+	base64   -d <<< "aGVsbG8gdGhlCg=="
+
+
 validate:
 	base64    < base64.c | diff - base64.c.encoded
 	base64 -d < base64.c.encoded | diff - base64.c
+
 
 
 clean:
