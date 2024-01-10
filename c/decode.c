@@ -79,13 +79,13 @@ int decode (byte * in_buff, byte * out_buff) {
         ascii2bin(c3);
       } else {
         c3 = 0;
-        output_bytes = 1;
+        output_bytes = 2;
       }
       if (c2 != '=') {
         ascii2bin(c2);
       } else {
         c2 = 0;
-        output_bytes = 2;
+        output_bytes = 1;
       }
 
       // Merge the four 6-bit values into a single 24-bit value 
