@@ -8,10 +8,7 @@ int decode(byte * in_buff, byte * out_buff);
 #include <unistd.h>
 #include <stdio.h>
 
-#define _4K_ (4096)
-
-#define size_in_buff   (3072) //  1024 * 3 == 3072 
-#define size_out_buff  (3072) //   768 * 4 == 3072 
+#include "base64.h"
 
 #define offset_A (  0 + 'A')
 #define offset_a (-26 + 'a')

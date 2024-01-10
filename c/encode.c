@@ -19,17 +19,7 @@ int encode(byte * in_buff, byte * out_buff);
 #include <unistd.h>
 #include <stdio.h>
 
-
-#define _4K_ (4096)
-
-#define size_in_buff   (3072) //  1024 * 3 == 3072 
-#define size_out_buff  (3072) //   768 * 4 == 3072 
-
-// #define num_in_buff
-// #define num_out_buff 
-// 
-// byte in_buffer[ _4K_ ];
-// byte out_buffer[ _4K_ ];
+#include "base64.h"
 
 #define offset_A (  0 + 'A')
 #define offset_a (-26 + 'a')
